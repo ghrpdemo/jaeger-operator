@@ -119,9 +119,10 @@ func (c *Collector) Get() *appsv1.Deployment {
 				},
 				Spec: corev1.PodSpec{
 					Containers: []corev1.Container{{
-						Image: util.ImageName(c.jaeger.Spec.Collector.Image, "jaeger-collector-image"),
-						Name:  "jaeger-collector",
-						Args:  options,
+						Image:           util.ImageName(c.jaeger.Spec.Collector.Image, "jaeger-collector-image"),
+						ImagePullPolicy: corev1.PullPolicy(c.jaeger.Spec.Collector.ImagePullPolicy),
+						Name:            "jaeger-collector",
+						Args:            options,
 						Env: []corev1.EnvVar{
 							corev1.EnvVar{
 								Name:  "SPAN_STORAGE_TYPE",
@@ -130,6 +131,28 @@ func (c *Collector) Get() *appsv1.Deployment {
 							corev1.EnvVar{
 								Name:  "COLLECTOR_ZIPKIN_HTTP_PORT",
 								Value: "9411",
+							},
+							corev1.EnvVar{
+								Name: "SASL_SSL_USERNAME",
+								ValueFrom: &corev1.EnvVarSource{
+									SecretKeyRef: &corev1.SecretKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: commonSpec.KafkaCred,
+										},
+										Key: "username",
+									},
+								},
+							},
+							corev1.EnvVar{
+								Name: "SASL_SSL_PASSWORD",
+								ValueFrom: &corev1.EnvVarSource{
+									SecretKeyRef: &corev1.SecretKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: commonSpec.KafkaCred,
+										},
+										Key: "password",
+									},
+								},
 							},
 						},
 						VolumeMounts: commonSpec.VolumeMounts,
@@ -183,6 +206,7 @@ func (c *Collector) Get() *appsv1.Deployment {
 					Affinity:           commonSpec.Affinity,
 					Tolerations:        commonSpec.Tolerations,
 					SecurityContext:    commonSpec.SecurityContext,
+					ImagePullSecrets:   commonSpec.ImagePullSecrets,
 				},
 			},
 		},

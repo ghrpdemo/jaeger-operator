@@ -158,6 +158,12 @@ type JaegerCommonSpec struct {
 
 	// +optional
 	ServiceAccount string `json:"serviceAccount,omitempty"`
+
+	// +optional
+	KafkaCred string `json:"kafkaCred,omitempty"`
+
+	// +optional
+	ImagePullSecrets []v1.LocalObjectReference `json:"imagePullSecrets,omitempty"`
 }
 
 // JaegerQuerySpec defines the options to be used when deploying the query
@@ -277,6 +283,9 @@ type JaegerCollectorSpec struct {
 
 	// +optional
 	JaegerCommonSpec `json:",inline,omitempty"`
+
+	// +optional UNDO IF problem (previous operator version jaeger-operator6g)
+	ImagePullPolicy string `json:"imagePullPolicy,omitempty"`
 }
 
 // JaegerIngesterSpec defines the options to be used when deploying the ingester
@@ -298,6 +307,9 @@ type JaegerIngesterSpec struct {
 
 	// +optional
 	JaegerCommonSpec `json:",inline,omitempty"`
+
+	// +optional UNDO IF problem (previous operator version jaeger-operator6g)
+	ImagePullPolicy string `json:"imagePullPolicy,omitempty"`
 }
 
 // JaegerAgentSpec defines the options to be used when deploying the agent

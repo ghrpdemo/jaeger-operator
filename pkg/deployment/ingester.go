@@ -112,13 +112,36 @@ func (i *Ingester) Get() *appsv1.Deployment {
 				},
 				Spec: corev1.PodSpec{
 					Containers: []corev1.Container{{
-						Image: util.ImageName(i.jaeger.Spec.Ingester.Image, "jaeger-ingester-image"),
-						Name:  "jaeger-ingester",
-						Args:  options,
+						Image:           util.ImageName(i.jaeger.Spec.Ingester.Image, "jaeger-ingester-image"),
+						ImagePullPolicy: corev1.PullPolicy(i.jaeger.Spec.Ingester.ImagePullPolicy),
+						Name:            "jaeger-ingester",
+						Args:            options,
 						Env: []corev1.EnvVar{
 							corev1.EnvVar{
 								Name:  "SPAN_STORAGE_TYPE",
 								Value: i.jaeger.Spec.Storage.Type,
+							},
+							corev1.EnvVar{
+								Name: "SASL_SSL_USERNAME",
+								ValueFrom: &corev1.EnvVarSource{
+									SecretKeyRef: &corev1.SecretKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: commonSpec.KafkaCred,
+										},
+										Key: "username",
+									},
+								},
+							},
+							corev1.EnvVar{
+								Name: "SASL_SSL_PASSWORD",
+								ValueFrom: &corev1.EnvVarSource{
+									SecretKeyRef: &corev1.SecretKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: commonSpec.KafkaCred,
+										},
+										Key: "password",
+									},
+								},
 							},
 						},
 						VolumeMounts: commonSpec.VolumeMounts,
@@ -156,6 +179,7 @@ func (i *Ingester) Get() *appsv1.Deployment {
 					Affinity:           commonSpec.Affinity,
 					Tolerations:        commonSpec.Tolerations,
 					SecurityContext:    commonSpec.SecurityContext,
+					ImagePullSecrets:   commonSpec.ImagePullSecrets,
 				},
 			},
 		},

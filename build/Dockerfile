@@ -1,4 +1,4 @@
-FROM centos
+FROM centos:centos7
 
 ENV OPERATOR=/usr/local/bin/jaeger-operator \
     USER_UID=1001 \
@@ -16,11 +16,17 @@ RUN INSTALL_PKGS=" \
 COPY scripts/* /scripts/
 
 # install operator binary
-COPY build/_output/bin/jaeger-operator ${OPERATOR}
+COPY jaeger-operator ${OPERATOR}
 
-COPY build/bin /usr/local/bin
+COPY bin /usr/local/bin
+RUN ls -la /usr/local/bin
+RUN ls -la /bin
+RUN ls -la /bin/sh
+RUN sed -i -e 's/\r$//' /usr/local/bin/user_setup
+RUN sed -i -e 's/\r$//' /usr/local/bin/entrypoint
 RUN  /usr/local/bin/user_setup
 
+#ENTRYPOINT ["/bin/bash", "-ec", "while : ; do echo '.'; sleep 5 ; done"]
 ENTRYPOINT ["/usr/local/bin/entrypoint"]
 
 USER ${USER_UID}

@@ -56,6 +56,8 @@ func Merge(commonSpecs []v1.JaegerCommonSpec) *v1.JaegerCommonSpec {
 	var tolerations []corev1.Toleration
 	var securityContext *corev1.PodSecurityContext
 	var serviceAccount string
+	var kafkaCred string
+	var imagePullSecrets []corev1.LocalObjectReference
 
 	for _, commonSpec := range commonSpecs {
 		// Merge annotations
@@ -92,18 +94,27 @@ func Merge(commonSpecs []v1.JaegerCommonSpec) *v1.JaegerCommonSpec {
 		if serviceAccount == "" {
 			serviceAccount = commonSpec.ServiceAccount
 		}
+
+		//kafkaCred = commonSpec.KafkaCred
+		if kafkaCred == "" {
+			kafkaCred = commonSpec.KafkaCred
+		}
+
+		imagePullSecrets = append(imagePullSecrets, commonSpec.ImagePullSecrets...)
 	}
 
 	return &v1.JaegerCommonSpec{
-		Annotations:     annotations,
-		Labels:          labels,
-		VolumeMounts:    removeDuplicatedVolumeMounts(volumeMounts),
-		Volumes:         removeDuplicatedVolumes(volumes),
-		Resources:       *resources,
-		Affinity:        affinity,
-		Tolerations:     tolerations,
-		SecurityContext: securityContext,
-		ServiceAccount:  serviceAccount,
+		Annotations:      annotations,
+		Labels:           labels,
+		VolumeMounts:     removeDuplicatedVolumeMounts(volumeMounts),
+		Volumes:          removeDuplicatedVolumes(volumes),
+		Resources:        *resources,
+		Affinity:         affinity,
+		Tolerations:      tolerations,
+		SecurityContext:  securityContext,
+		ServiceAccount:   serviceAccount,
+		KafkaCred:        kafkaCred,
+		ImagePullSecrets: imagePullSecrets,
 	}
 }
 

@@ -53,7 +53,8 @@ func DefaultJaeger() string {
 	}
 
 	// fallback value, useful for tests
-	return "0.0.0"
+	//return "0.0.0"
+	return "1.15.0"
 }
 
 // DefaultJaegerMajorMinor returns the major.minor format of the default Jaeger version
